@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\PacienteController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\UserController;
+use App\Models\User;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -24,21 +28,38 @@ Route::get('/', function () {
     ]);
 });
 
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [
-//         'canLogin' => Route::has('login'),
-//         'canRegister' => Route::has('register'),
-//         'laravelVersion' => Application::VERSION,
-//         'phpVersion' => PHP_VERSION,
-//     ]);
-// });
+Route::get('/', function () {
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
 
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
+
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard',['canregister' => Route::has('register')]);
+        return Inertia::render('Dashboard', ['canregister' => Route::has('register')]);
     })->name('dashboard');
+});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::resource('/paciente', PacienteController::class)->names([
+        'index' => 'paciente.index',
+        'create' => 'paciente.create',
+        'store' => 'paciente.store',
+        'show' => 'paciente.show',
+        'edit' => 'paciente.edit',
+        'update' => 'paciente.update',
+        'destroy' => 'paciente.destroy',
+    ]);
 });

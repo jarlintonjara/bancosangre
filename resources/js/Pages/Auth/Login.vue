@@ -76,9 +76,9 @@ const submit = () => {
                 </label>
             </div>
 
-            <!-- <div class="flex items-center justify-start mt-4">
+            <div class="flex items-center justify-start mt-4">
                 <Link v-if="canRegister" :href="route('register')" class="ml-4 text-sm text-gray-700 dark:text-gray-500 underline">Register</Link>
-            </div> -->
+            </div>
             
             <div class="flex items-center justify-end mt-4">
                 <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-gray-900">
@@ -93,7 +93,7 @@ const submit = () => {
         </form>
     </JetAuthenticationCard>
 
-  <v-form
+  <!-- <v-form
     ref="form"
     v-model="valid"
     lazy-validation
@@ -151,6 +151,6 @@ const submit = () => {
     >
       Reset Validation
     </v-btn>
-  </v-form>
+  </v-form> -->
 </template>
 
