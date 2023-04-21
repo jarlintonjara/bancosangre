@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CitasController;
 use App\Http\Controllers\PacienteController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -61,5 +62,21 @@ Route::middleware([
         'edit' => 'paciente.edit',
         'update' => 'paciente.update',
         'destroy' => 'paciente.destroy',
+    ]);
+});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::resource('/cita', CitasController::class)->names([
+        'index' => 'cita.index',
+        'create' => 'cita.create',
+        'store' => 'cita.store',
+        'show' => 'cita.show',
+        'edit' => 'cita.edit',
+        'update' => 'cita.update',
+        'destroy' => 'cita.destroy',
     ]);
 });
