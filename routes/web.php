@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CitasController;
 use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\DniController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -78,5 +79,7 @@ Route::middleware([
         'edit' => 'cita.edit',
         'update' => 'cita.update',
         'destroy' => 'cita.destroy',
-    ]);
+    ])->parameter('cita', 'cita');;
 });
+
+Route::post('/dni', [DniController::class, 'buscar']);

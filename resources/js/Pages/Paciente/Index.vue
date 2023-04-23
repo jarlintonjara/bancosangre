@@ -13,9 +13,9 @@ import '@mdi/font/css/materialdesignicons.css';
     <AppLayout title="Usuarios">
         <template #header>
             
-                <Link :href="route('paciente.create')" class="v-btn">Crear</Link>
-                <!-- <Button>BOTON</Button> -->
-                <div>
+            <Link :href="route('paciente.create')" class="v-btn">Crear</Link>
+            <!-- <Button>BOTON</Button> -->
+            <div>
   <label for="search">Buscar:</label>
   <input type="text" v-model="search" id="search">
 </div>

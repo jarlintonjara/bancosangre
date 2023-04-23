@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Citas;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class CitasController extends Controller
@@ -56,9 +57,9 @@ class CitasController extends Controller
         ]);
 
         Citas::create($request->all());
-
-        return redirect()->route('citas.index')
-            ->with('success', 'Cita creada satisfactoriamente.');
+        return Redirect::route('cita.create')->with('success', 'Cita creada satisfactoriamente.');
+        // return redirect()->route('citas.index')
+        //     ->with('success', 'Cita creada satisfactoriamente.');
     }
 
     /**

@@ -1,6 +1,10 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
+import { ref, onMounted } from 'vue';
+import TimeList from '@/components/TimeList.vue';
+import es from 'date-fns/locale/es'
 
 </script>
 
@@ -13,7 +17,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
         </template>
 
         <v-container>
-            <v-form v-model="valid" @submit.prevent="saveCita">
+            <v-form @submit.prevent="saveCita">
                 <v-expansion-panels v-model="panel" multiple>
                     <v-expansion-panel value="datetime">
                     <v-expansion-panel-title v-slot="{ open }">
@@ -33,10 +37,10 @@ import AppLayout from '@/Layouts/AppLayout.vue';
                                 style="width: 100%"
                             >
                                 <v-col cols="6" class="d-flex justify-start">
-                                Fecha: {{ cita.fecha_cita || 'Not set' }}
+                                Fecha de cita: {{ cita.fecha_cita || 'Fecha sin selección' }}
                                 </v-col>
                                 <v-col cols="6" class="d-flex justify-start">
-                                Hora: {{ cita.hora_cita || 'Not set' }}
+                                Hora de cita: {{ cita.hora_cita || 'Hora sin selección' }}
                                 </v-col>
                             </v-row>
                             </v-fade-transition>
@@ -48,22 +52,28 @@ import AppLayout from '@/Layouts/AppLayout.vue';
                         justify="space-around"
                         no-gutters
                         >
-                        <v-col cols="3">
-                            <v-text-field
-                            v-model="cita.fecha_cita"
-                            label="Fecha de la cita"
-                            type="date"
-                            ></v-text-field>
+                        <v-col cols="12" md="4">
+                            <VueDatePicker v-model="cita.fecha_cita" 
+                            :disabledDates="disabledDates" 
+                            inline
+                            auto-apply
+                            :enable-time-picker="false"
+                            :language="es"
+                           
+                            >
+                            </VueDatePicker>
+                            {{ errors.fecha_cita }}
                         </v-col>
 
-                        <v-col cols="3">
-                            <v-text-field
-                            v-model="cita.hora_cita"
-                            label="Hora de la cita"
-                            type="date"
-                            ></v-text-field>
+                        <v-col cols="12" md="8">
+                            <TimeList 
+                            v-model="selectedTime"
+                            initialTime="07:30" 
+                            finalTime="11:30"
+                            @input="handleTimeSelection"
+                            />
+                            {{ errors.hora_cita }}
                         </v-col>
-
                         </v-row>
                     </v-expansion-panel-text>
                     </v-expansion-panel>
@@ -100,40 +110,53 @@ import AppLayout from '@/Layouts/AppLayout.vue';
                         <v-expansion-panel-text>
                             <v-row>
                                 <v-col cols="12" md="4">
-                                    <v-text-field
-                                    v-model="cita.nombre_donante"
-                                    label="Nombre del donante"
-                                    hide-details
-                                    placeholder="Nombre del donante"
-                                    :rules="[rules.required]">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="4">
-                                    <v-text-field
-                                    v-model="cita.email_donante"
-                                    label="Email del donante"
-                                    hide-details
-                                    placeholder="Email del donante"
-                                    :rules="[rules.required]">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="4">
-                                    <v-text-field
+                                    <v-select
                                     v-model="cita.documento_donante"
-                                    label="Documento del donante"
-                                    hide-details
-                                    placeholder="Documento del donante"
-                                    :rules="[rules.required]">
-                                    </v-text-field>
+                                    :hint="`${cita.documento_donante}`"
+                                    :items="documents"
+                                    item-title="cita.documento_donante"
+                                    chips
+                                    item-value="cita.documento_donante"
+                                    label="Documento"
+                                    persistent-hint
+                                    return-object
+                                    single-line
+                                ></v-select>
                                 </v-col>
-                            </v-row>
-                            <v-row>
                                 <v-col cols="12" md="4">
                                     <v-text-field
                                     v-model="cita.n_documento_donante"
                                     label="Nº Documento del donante"
                                     hide-details
                                     placeholder="Nº Documento del donante"
+                                    :rules="[rules.required]"
+                                    :error-messages="errors.n_documento_donante" 
+                                    @blur="buscarDni()"
+                                    >
+                                    </v-text-field>
+                                </v-col>
+                                <v-col cols="12" md="4">
+                                    <v-text-field
+                                    v-model="cita.nombre_donante"
+                                    label="Nombre del donante"
+                                    hide-details
+                                    placeholder="Nombre del donante"
+                                    :error-messages="errors.nombre_donante" 
+                                    :rules="[rules.required]">
+                                    </v-text-field>
+                                </v-col>
+                               
+
+                            </v-row>
+                            <v-row>
+
+                                <v-col cols="12" md="4">
+                                    <v-text-field
+                                    v-model="cita.email_donante"
+                                    label="Email del donante"
+                                    hide-details
+                                    placeholder="Email del donante"
+                                    :error-messages="errors.email_donante" 
                                     :rules="[rules.required]">
                                     </v-text-field>
                                 </v-col>
@@ -142,7 +165,8 @@ import AppLayout from '@/Layouts/AppLayout.vue';
                                     v-model="cita.telefono_donante"
                                     label="Telefono del donante"
                                     hide-details
-                                    placeholder="Telefono del donante"
+                                    placeholder="Celular del donante"
+                                    :error-messages="errors.telefono_donante" 
                                     :rules="[rules.required]">
                                     </v-text-field>
                                 </v-col>
@@ -152,6 +176,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
                                     label="Fecha_Nac del donante"
                                     hide-details
                                     placeholder="Fecha_Nac del donante"
+                                    :error-messages="errors.fecha_nac_donante" 
                                     :rules="[rules.required]">
                                     </v-text-field>
                                 </v-col>
@@ -163,6 +188,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
                                     label="Dirección del donante"
                                     hide-details
                                     placeholder="Dirección del donante"
+                                    :error-messages="errors.direccion_donante" 
                                     :rules="[rules.required]">
                                     </v-text-field>
                                 </v-col>
@@ -172,6 +198,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
                                     label="Estado Civil del donante"
                                     hide-details
                                     placeholder="Estado Civil del donante"
+                                    :error-messages="errors.estado_civil_donante" 
                                     :rules="[rules.required]">
                                     </v-text-field>
                                 </v-col>
@@ -181,6 +208,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
                                     label="Grado_Instruc del donante"
                                     hide-details
                                     placeholder="Grado_Instruc del donante"
+                                    :error-messages="errors.grado_instruccion_donante" 
                                     :rules="[rules.required]">
                                     </v-text-field>
                                 </v-col>
@@ -225,7 +253,10 @@ import AppLayout from '@/Layouts/AppLayout.vue';
                                     label="Número_Documento del donante"
                                     hide-details
                                     placeholder="Número_Documento del donante"
-                                    :rules="[rules.required]">
+                                    :rules="[rules.required]"
+                                    :error-messages="errors.n_documento_paciente" 
+                                    @blur="buscarDni2()"
+                                    >
                                     </v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="4">
@@ -234,28 +265,47 @@ import AppLayout from '@/Layouts/AppLayout.vue';
                                     label="Nombre del donante"
                                     hide-details
                                     placeholder="Nombre del donante"
+                                    :error-messages="errors.nombre_paciente" 
                                     :rules="[rules.required]">
                                     </v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="4">
                                     <v-select
                                     v-model="cita.hospital_paciente"
-                                    label="Hospital del donante"
-                                    :rules="[rules.required]"
-                                    hide-details
+                                    :hint="`${cita.hospital_paciente}`"
                                     :items="locations"
+                                    item-title="cita.hospital_paciente"
                                     chips
-                                    flat
-                                    variant="solo"
-                                    ></v-select>
+                                    item-value="cita.hospital_paciente"
+                                    label="Hospital"
+                                    persistent-hint
+                                    return-object
+                                    single-line
+                                ></v-select>
                                 </v-col>
                             </v-row>
                         </v-expansion-panel-text>
                     </v-expansion-panel>
                 </v-expansion-panels>
-                <v-btn type="submit" color="primary" :disabled="!valid">Guardar</v-btn>
+                <v-btn type="submit" color="primary">Guardar</v-btn>
             </v-form>
+  
+            <template>
+                <div class="text-center">
 
+                <v-overlay v-model="overlay"  class="align-center justify-center">
+                    <v-progress-circular
+                        color="teal"
+                        indeterminate
+                        :rotate="-90"
+                        :size="100"
+                        :width="15"
+                ></v-progress-circular>
+                </v-overlay>
+                </div>
+            </template>
+ 
+                                
         </v-container>
 
     </AppLayout>
@@ -264,59 +314,102 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 
 
 <script>
+import { Inertia } from "@inertiajs/inertia";
+import { ref  } from 'vue';
+
+
+
     export default {
-    data() {
-        return {
-            selectedDate: null,
-            cita: {
-                fecha_cita: null,
-                hora_cita: null,
-                nombre_donante: null,
-                email_donante: null,
-                documento_donante: null,
-                n_documento_donante: null,
-                telefono_donante: null,
-                fecha_nac_donante: null,
-                direccion_donante: null,
-                estado_civil_donante: null,
-                grado_instruccion_donante: null,
-                n_documento_paciente: null,
-                nombre_paciente: null,
-                hospital_paciente: null,
-            },
-            valid: false,
-            rules: {
-                required: (value) => !!value || "Este campo es obligatorio",
-                email: (value) =>
-                /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/.test(value) ||
-                "Ingrese un correo electrónico válido",
-            },
-            date: null,
-            trip: {
-                location: null,
-            },
-            locations: ['Australia', 'Barbados', 'Chile', 'Denmark', 'Ecuador', 'France'],
-            panel: ['datetime']
-        };
-    },
-    methods: {
-        saveCita() {
-        // Envía la información de la cita al servidor para crearla
+        props: ['errors'],
+        data() {
+            return {
+                overlay: false,
+                date: null,
+                selectedTime: null,
+                cita: {
+                    fecha_cita: null,
+                    hora_cita: null,
+                    nombre_donante: null,
+                    email_donante: null,
+                    documento_donante: 'DNI',
+                    n_documento_donante: null,
+                    telefono_donante: null,
+                    fecha_nac_donante: null,
+                    direccion_donante: null,
+                    estado_civil_donante: null,
+                    grado_instruccion_donante: null,
+                    n_documento_paciente: null,
+                    nombre_paciente: null,
+                    hospital_paciente: 'HOSPITAL CAYETANO HEREDIA',
+                },
+                rules: {
+                    required: (value) => !!value || "Este campo es obligatorio",
+                    email: (value) =>
+                    /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/.test(value) ||
+                    "Ingrese un correo electrónico válido",
+                },
+                // documents: ['DNI', 'Pasaporte', 'Carnet'],
+                panel: ['datetime','paciente','donante'],
+                // cita.fecha_cita: { state: 'DNI', abbr: 'Documento nacional de identidad' },
+                locations: ['CLÍNICA CORI','CLÍNICA SERVISALUD','CLÍNICA UNIVERSITARIA','CLÍNICA MÉDICA CAYETANO HEREDIA','HOSPITAL CAYETANO HEREDIA','HOSPITAL CAYETANO HEREDIA (SOLO TRANSFUSIÓN AMBULATORIA','HOSPITAL CARLOS LANFRANCO LA HOZ (PTE. PIEDRA)'],
+                documents: ['DNI','Pasaporte','Carnet'],
+            };
         },
-    },
-    watch: {
-        'cita.hora_cita': function(newValue, oldValue) {
-            if(newValue !== oldValue) {
-            this.panel.push('donante');
-            }
-        }
-    },
-    components: {
-        
-    },
-    mounted() {
-    
-    },
+        methods: {
+            disabledDates(date) {
+                const today = new Date();
+                return (date < today.setHours(0, 0, 0, 0));
+            },
+            buscarDni() {
+                this.overlay = true;
+                axios.post('/dni', { n_documento: this.cita.n_documento_donante })
+                    .then(response => {
+                        this.cita.nombre_donante = response.data.datos.NOMBRES + ' ' + response.data.datos.APE_PATERNO + ' ' + response.data.datos.APE_MATERNO;
+                        this.cita.direccion_donante = response.data.datos.DIRECCION;
+                        this.cita.fecha_nac_donante = response.data.datos.FH_NACIMIENTO;
+                        this.overlay = false;
+                    })
+                    .catch(error => {
+                    console.log(error);
+                    this.overlay = false;
+                    });
+            },
+            buscarDni2() {
+                this.overlay = true;
+                axios.post('/dni', { n_documento: this.cita.n_documento_paciente })
+                    .then(response => {
+                        this.cita.nombre_paciente = response.data.datos.NOMBRES + ' ' + response.data.datos.APE_PATERNO + ' ' + response.data.datos.APE_MATERNO;
+                        this.overlay = false;
+                    })
+                    .catch(error => {
+                    console.log(error);
+                    this.overlay = false;
+                    });
+            },
+            handleTimeSelection(timeValue) {
+                this.cita.hora_cita = timeValue;
+            },
+            formatFechaCita() {
+                if (this.cita.fecha_cita) {
+                const fecha = new Date(this.cita.fecha_cita);
+                this.cita.fecha_cita = `${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}-${fecha.getDate().toString().padStart(2, '0')}`;
+                }
+            },
+            saveCita(){
+                this.formatFechaCita();
+                Inertia.post(route('cita.store'), this.cita);
+            },
+
+        },
+
     };
+    // const cita = ref({ fecha_cita: null });
 
 </script>
+
+<style>
+/* .v3dp__popout[data-v-2e128338]:nth-of-type(4) {
+    display: block !important;
+  } */
+
+</style>
