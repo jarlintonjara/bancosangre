@@ -35,7 +35,7 @@ const submit = () => {
 
     <JetAuthenticationCard>
         <template #logo>
-            <JetAuthenticationCardLogo />
+            <JetAuthenticationCardLogo width="30"/>
         </template>
 
         <div v-if="status" class="mb-4 font-medium text-sm text-green-600">

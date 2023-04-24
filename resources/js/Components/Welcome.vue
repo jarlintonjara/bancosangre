@@ -50,7 +50,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                 <div class="flex items-center">
                     <v-icon  icon="mdi-blood-bag" color="blue" size="40px"/>
                     <div class="ml-4 text-lg text-gray-600 leading-7 font-semibold">
-                        <a href="#">Última donación: 
+                        <a href="#">Fecha última donación: 
                             <v-chip variant="elevated" color="red">
                                 20-04-2023
                             </v-chip>
@@ -69,7 +69,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                 <div class="flex items-center">
                     <v-icon icon="mdi-water-check" color="blue" size="40PX" />
                     <div class="ml-4 text-lg text-gray-600 leading-7 font-semibold">
-                        <a href="#">Última donación: 
+                        <a href="#">Donar despues de: 
                             <v-chip variant="elevated" color="green">
                                 20-08-2023
                             </v-chip>
