@@ -16,9 +16,10 @@ class CitasController extends Controller
      */
     public function index()
     {
+        // $citas = Citas::all();
+        // return view('citas.index', compact('citas'));
         $citas = Citas::all();
-
-        return view('citas.index', compact('citas'));
+        return Inertia::render('Citas/Index', ['citas' => $citas]);
     }
 
     /**
