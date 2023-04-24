@@ -58,7 +58,7 @@ class CitasController extends Controller
         ]);
 
         Citas::create($request->all());
-        return Redirect::route('cita.create')->with('success', 'Cita creada satisfactoriamente.');
+        return Redirect::route('cita.index')->with('success', 'Cita creada satisfactoriamente.');
         // return redirect()->route('citas.index')
         //     ->with('success', 'Cita creada satisfactoriamente.');
     }
